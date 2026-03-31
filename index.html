@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pocket Option Signals</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#11182b; --panel-2:#151f37; --text:#eef3ff; --muted:#98a6c7;
+      --line:#24314f; --green:#18c37e; --red:#ff5c7a; --yellow:#f0b94b; --shadow:0 12px 32px rgba(0,0,0,.28); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#0b1020 0%, #0f1730 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    a{text-decoration:none;color:inherit}
+    .wrap{max-width:1200px;margin:0 auto;padding:20px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+    .brand{font-size:20px;font-weight:800}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;cursor:pointer;border-radius:14px;padding:12px 16px;font-weight:700;transition:.2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,#4e8cff,#76b2ff);color:white}
+    .btn-secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line)}
+    .btn-green{background:rgba(24,195,126,.15);color:#7df0bc;border:1px solid rgba(24,195,126,.35)}
+    .btn-red{background:rgba(255,92,122,.15);color:#ff9eb0;border:1px solid rgba(255,92,122,.35)}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-main{padding:22px}
+    .hero h1{margin:0 0 8px;font-size:34px;line-height:1.08}
+    .hero p{margin:0;color:var(--muted);font-size:15px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .stat{padding:16px}
+    .stat .label{color:var(--muted);font-size:13px;margin-bottom:6px}
+    .stat .value{font-size:26px;font-weight:800}
+    .main-grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+    .panel{padding:18px}
+    .panel-title{font-size:16px;font-weight:800;margin:0 0 14px}
+    .controls{display:grid;gap:12px}
+    .control label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
+    .select{width:100%;padding:13px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);color:var(--text);outline:none}
+    .signal-card{padding:20px}
+    .signal-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .pair{font-size:18px;font-weight:800}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:800;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .badge.buy{background:rgba(24,195,126,.14);border-color:rgba(24,195,126,.28);color:#8bf3c5}
+    .badge.sell{background:rgba(255,92,122,.14);border-color:rgba(255,92,122,.28);color:#ffb0be}
+    .badge.pending{color:#d6e4ff}
+    .big-direction{font-size:64px;font-weight:900;letter-spacing:1px;line-height:1;margin:8px 0 10px}
+    .buy-text{color:#79efbb}
+    .sell-text{color:#ff8fa6}
+    .signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 14px}
+    .mini{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+    .mini .k{color:var(--muted);font-size:12px;margin-bottom:6px}
+    .mini .v{font-weight:800;font-size:18px}
+    .analysis{margin-top:18px;display:grid;gap:12px}
+    .analysis-box{padding:16px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+    .analysis-title{font-size:14px;font-weight:800;margin-bottom:10px}
+    .reason-list{margin:0;padding-left:18px;color:#dce6ff}
+    .reason-list li{margin-bottom:8px}
+    .vote-box{padding:18px}
+    .vote-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+    .progress-wrap{display:grid;gap:10px}
+    .progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+    .bar{width:100%;height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid var(--line)}
+    .fill{height:100%;width:0%}
+    .fill.buy{background:linear-gradient(90deg,#13b56f,#62e8aa)}
+    .fill.sell{background:linear-gradient(90deg,#ff5d79,#ff94a9)}
+    .history{margin-top:18px}
+    .history-list{display:grid;gap:12px}
+    .history-item{padding:14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line);display:grid;grid-template-columns:1.4fr .9fr .9fr 1.2fr;gap:10px;align-items:center}
+    .history-main{display:grid;gap:4px}
+    .history-pair{font-weight:800}
+    .history-meta{font-size:13px;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid var(--line)}
+    .pill.buy{color:#8bf3c5;background:rgba(24,195,126,.14);border-color:rgba(24,195,126,.28)}
+    .pill.sell{color:#ffb0be;background:rgba(255,92,122,.14);border-color:rgba(255,92,122,.28)}
+    .pill.pending{color:#d6e4ff;background:rgba(90,163,255,.12);border-color:rgba(90,163,255,.25)}
+    .pill.win{color:#8bf3c5;background:rgba(24,195,126,.14);border-color:rgba(24,195,126,.28)}
+    .pill.loss{color:#ffb0be;background:rgba(255,92,122,.14);border-color:rgba(255,92,122,.28)}
+    .pill.draw{color:#ffd889;background:rgba(240,185,75,.14);border-color:rgba(240,185,75,.34)}
+    .result-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .tiny-btn{border:none;cursor:pointer;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:800}
+    .tiny-win{background:rgba(24,195,126,.14);color:#8bf3c5;border:1px solid rgba(24,195,126,.28)}
+    .tiny-loss{background:rgba(255,92,122,.14);color:#ffb0be;border:1px solid rgba(255,92,122,.28)}
+    .tiny-draw{background:rgba(240,185,75,.14);color:#ffd889;border:1px solid rgba(240,185,75,.34)}
+    .tiny-reset{background:rgba(255,255,255,.06);color:#e6efff;border:1px solid var(--line)}
+    .muted{color:var(--muted)}
+    .empty{padding:16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+    .stream-mode .wrap{max-width:1400px}
+    .stream-mode .hero h1{font-size:40px}
+    .stream-mode .big-direction{font-size:88px}
+    .stream-mode .signal-grid .mini .v{font-size:22px}
+    @media (max-width: 1024px){.hero,.main-grid,.signal-grid,.stats{grid-template-columns:1fr}.history-item{grid-template-columns:1fr}.result-actions{justify-content:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">Pocket Option Signals</div>
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="https://t.me/your_bot_username" target="_blank">Telegram</a>
+        <a class="btn btn-secondary" href="https://youtube.com/@yourchannel" target="_blank">Watch Stream</a>
+        <button class="btn btn-primary" id="streamModeBtn">Stream Mode</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="card hero-main">
+        <h1>Live Signal Dashboard</h1>
+        <p>Generate signals and mark results manually.</p>
+      </div>
+      <div class="stats">
+        <div class="card stat"><div class="label">Signals Today</div><div class="value" id="signalsTodayValue">0</div></div>
+        <div class="card stat"><div class="label">Win Rate</div><div class="value" id="winRateValue">0%</div></div>
+        <div class="card stat"><div class="label">Audience Votes</div><div class="value" id="totalVotesValue">0</div></div>
+        <div class="card stat"><div class="label">Active Result</div><div class="value" id="activeResultValue">PENDING</div></div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="card panel">
+        <h2 class="panel-title">Signal Controls</h2>
+        <div class="controls">
+          <div class="control">
+            <label for="assetSelect">Asset</label>
+            <select class="select" id="assetSelect">
+              <option>EUR/USD OTC</option>
+              <option>GBP/USD OTC</option>
+              <option>USD/JPY OTC</option>
+              <option>USD/BRL OTC</option>
+              <option>EUR/JPY OTC</option>
+              <option>BTC/USD OTC</option>
+              <option>ETH/USD OTC</option>
+              <option>XAU/USD OTC</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="timeframeSelect">Expiry</label>
+            <select class="select" id="timeframeSelect">
+              <option value="30s">30 seconds</option>
+              <option value="1m">1 minute</option>
+              <option value="3m">3 minutes</option>
+              <option value="5m">5 minutes</option>
+              <option value="30m">30 minutes</option>
+              <option value="1h">1 hour</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="riskSelect">Signal Mode</label>
+            <select class="select" id="riskSelect">
+              <option value="conservative">Conservative</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="aggressive">Aggressive</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="generateSignalBtn">Show Signal</button>
+        </div>
+
+        <div class="history">
+          <h2 class="panel-title">Audience Vote</h2>
+          <div class="card vote-box" style="padding:16px;background:transparent;box-shadow:none">
+            <div class="vote-row">
+              <button class="btn btn-green" id="voteBuyBtn">Vote BUY</button>
+              <button class="btn btn-red" id="voteSellBtn">Vote SELL</button>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>BUY</span><span id="buyVotesLabel">0% (0)</span></div>
+              <div class="bar"><div class="fill buy" id="buyBar"></div></div>
+              <div class="progress-label"><span>SELL</span><span id="sellVotesLabel">0% (0)</span></div>
+              <div class="bar"><div class="fill sell" id="sellBar"></div></div>
+              <div class="progress-label"><span>Total audience votes</span><span id="totalVotesLabel">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card signal-card">
+        <div class="signal-top">
+          <div>
+            <div class="pair" id="signalAsset">EUR/USD OTC</div>
+            <div class="muted" id="signalTimestamp">Waiting for new signal</div>
+          </div>
+          <div class="badge pending" id="signalStatusBadge">No active signal</div>
+        </div>
+
+        <div class="big-direction buy-text" id="signalDirection">BUY</div>
+
+        <div class="signal-grid">
+          <div class="mini"><div class="k">Expiry</div><div class="v" id="signalTimeframe">1 minute</div></div>
+          <div class="mini"><div class="k">Confidence</div><div class="v" id="signalConfidence">78%</div></div>
+          <div class="mini"><div class="k">Entry Window</div><div class="v" id="signalEntryWindow">5-15 sec</div></div>
+          <div class="mini"><div class="k">Risk</div><div class="v" id="signalRisk">Balanced</div></div>
+        </div>
+
+        <div class="analysis">
+          <div class="analysis-box">
+            <div class="analysis-title">Signal Analysis</div>
+            <div class="muted" id="signalSummary">Momentum is building with a clean structure.</div>
+          </div>
+          <div class="analysis-box">
+            <div class="analysis-title">Why this signal</div>
+            <ul class="reason-list" id="reasonsList">
+              <li>Short-term momentum is aligned with direction.</li>
+              <li>Current market structure supports the selected scenario.</li>
+              <li>Entry window is adapted to the chosen expiry.</li>
+              <li>Risk mode filters the signal strength.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="history">
+          <h2 class="panel-title">Signal History</h2>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = { history:'po_history_manual_v2', votes:'po_votes_v2', streamMode:'po_stream_mode_v2' };
+    const state = { history:[], votes:{buy:0,sell:0}, streamMode:false };
+
+    const els = {
+      assetSelect: document.getElementById('assetSelect'),
+      timeframeSelect: document.getElementById('timeframeSelect'),
+      riskSelect: document.getElementById('riskSelect'),
+      generateSignalBtn: document.getElementById('generateSignalBtn'),
+      voteBuyBtn: document.getElementById('voteBuyBtn'),
+      voteSellBtn: document.getElementById('voteSellBtn'),
+      streamModeBtn: document.getElementById('streamModeBtn'),
+      signalAsset: document.getElementById('signalAsset'),
+      signalTimestamp: document.getElementById('signalTimestamp'),
+      signalStatusBadge: document.getElementById('signalStatusBadge'),
+      signalDirection: document.getElementById('signalDirection'),
+      signalTimeframe: document.getElementById('signalTimeframe'),
+      signalConfidence: document.getElementById('signalConfidence'),
+      signalEntryWindow: document.getElementById('signalEntryWindow'),
+      signalRisk: document.getElementById('signalRisk'),
+      signalSummary: document.getElementById('signalSummary'),
+      reasonsList: document.getElementById('reasonsList'),
+      signalsTodayValue: document.getElementById('signalsTodayValue'),
+      winRateValue: document.getElementById('winRateValue'),
+      totalVotesValue: document.getElementById('totalVotesValue'),
+      activeResultValue: document.getElementById('activeResultValue'),
+      buyVotesLabel: document.getElementById('buyVotesLabel'),
+      sellVotesLabel: document.getElementById('sellVotesLabel'),
+      totalVotesLabel: document.getElementById('totalVotesLabel'),
+      buyBar: document.getElementById('buyBar'),
+      sellBar: document.getElementById('sellBar'),
+      historyList: document.getElementById('historyList')
+    };
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(state.history));
+      localStorage.setItem(STORAGE_KEYS.votes, JSON.stringify(state.votes));
+      localStorage.setItem(STORAGE_KEYS.streamMode, JSON.stringify(state.streamMode));
+    }
+
+    function loadState(){
+      try{
+        const savedHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.history) || '[]');
+        const savedVotes = JSON.parse(localStorage.getItem(STORAGE_KEYS.votes) || '{"buy":0,"sell":0}');
+        const savedStream = JSON.parse(localStorage.getItem(STORAGE_KEYS.streamMode) || 'false');
+        if(Array.isArray(savedHistory)) state.history = savedHistory;
+        if(savedVotes && typeof savedVotes.buy === 'number' && typeof savedVotes.sell === 'number') state.votes = savedVotes;
+        state.streamMode = !!savedStream;
+      }catch(e){}
+    }
+
+    function formatTime(date=new Date()){
+      return date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function timeframeLabel(value){
+      const map = {'30s':'30 seconds','1m':'1 minute','3m':'3 minutes','5m':'5 minutes','30m':'30 minutes','1h':'1 hour'};
+      return map[value] || value;
+    }
+
+    function getEntryWindow(tf){
+      if(tf==='30s') return '3-7 sec';
+      if(tf==='1m') return '5-15 sec';
+      if(tf==='3m') return '10-20 sec';
+      if(tf==='5m') return '15-30 sec';
+      if(tf==='30m') return '1-3 min';
+      return '3-5 min';
+    }
+
+    function generateReasons(direction, tf, mode){
+      const up = direction === 'BUY';
+      const modeMap = {
+        conservative:'filtered by conservative conditions',
+        balanced:'confirmed by balanced conditions',
+        aggressive:'triggered by aggressive momentum conditions'
+      };
+      return [
+        up ? 'Short-term momentum supports an upward continuation.' : 'Short-term momentum supports a downward continuation.',
+        up ? 'Recent candles show buying pressure near the selected asset zone.' : 'Recent candles show selling pressure near the selected asset zone.',
+        `Expiry is tuned for ${timeframeLabel(tf).toLowerCase()} execution.`,
+        `Signal was ${modeMap[mode] || 'confirmed by the current setup'}.`
+      ];
+    }
+
+    function generateSummary(direction, tf, mode, confidence){
+      const dirText = direction === 'BUY' ? 'bullish' : 'bearish';
+      const modeText = mode.charAt(0).toUpperCase() + mode.slice(1);
+      return `${modeText} mode detected a ${dirText} setup with ${confidence}% confidence.`;
+    }
+
+    function randomDirection(){
+      return Math.random() >= 0.5 ? 'BUY' : 'SELL';
+    }
+
+    function confidenceByMode(mode){
+      if(mode==='conservative') return Math.floor(Math.random()*11)+76;
+      if(mode==='aggressive') return Math.floor(Math.random()*21)+64;
+      return Math.floor(Math.random()*16)+70;
+    }
+
+    function renderSignalCard(signal){
+      const isBuy = signal.direction === 'BUY';
+      els.signalAsset.textContent = signal.asset;
+      els.signalTimestamp.textContent = `Generated at ${signal.time}`;
+      els.signalDirection.textContent = signal.direction;
+      els.signalDirection.className = `big-direction ${isBuy ? 'buy-text' : 'sell-text'}`;
+      els.signalStatusBadge.textContent = signal.result || 'PENDING';
+      const badgeClass = signal.result === 'WIN' ? 'buy' : signal.result === 'LOSS' ? 'sell' : signal.result === 'DRAW' ? 'pending' : (isBuy ? 'buy' : 'sell');
+      els.signalStatusBadge.className = `badge ${badgeClass}`;
+      els.signalTimeframe.textContent = timeframeLabel(signal.timeframe);
+      els.signalConfidence.textContent = `${signal.confidence}%`;
+      els.signalEntryWindow.textContent = signal.entryWindow;
+      els.signalRisk.textContent = signal.riskLabel;
+      els.signalSummary.textContent = signal.summary;
+      els.reasonsList.innerHTML = '';
+      signal.reasons.forEach(reason => {
+        const li = document.createElement('li');
+        li.textContent = reason;
+        els.reasonsList.appendChild(li);
+      });
+    }
+
+    function updateStats(){
+      const completed = state.history.filter(item => ['WIN','LOSS'].includes(item.result));
+      const wins = completed.filter(item => item.result === 'WIN').length;
+      const winRate = completed.length ? Math.round((wins / completed.length) * 100) : 0;
+      const totalVotes = state.votes.buy + state.votes.sell;
+      const lastSignal = state.history[0];
+      els.signalsTodayValue.textContent = state.history.length;
+      els.winRateValue.textContent = `${winRate}%`;
+      els.totalVotesValue.textContent = totalVotes;
+      els.activeResultValue.textContent = lastSignal ? (lastSignal.result || 'PENDING') : 'PENDING';
+    }
+
+    function updateVotes(){
+      const total = state.votes.buy + state.votes.sell;
+      const buyPct = total ? Math.round((state.votes.buy / total) * 100) : 0;
+      const sellPct = total ? Math.round((state.votes.sell / total) * 100) : 0;
+      els.buyVotesLabel.textContent = `${buyPct}% (${state.votes.buy})`;
+      els.sellVotesLabel.textContent = `${sellPct}% (${state.votes.sell})`;
+      els.totalVotesLabel.textContent = total;
+      els.buyBar.style.width = `${buyPct}%`;
+      els.sellBar.style.width = `${sellPct}%`;
+      updateStats();
+      saveState();
+    }
+
+    function setHistoryResult(id, result){
+      const item = state.history.find(x => x.id === id);
+      if(!item) return;
+      item.result = result;
+      saveState();
+      renderHistory();
+      updateStats();
+      if(state.history[0] && state.history[0].id === id) renderSignalCard(item);
+    }
+
+    function renderHistory(){
+      els.historyList.innerHTML = '';
+      if(!state.history.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No signals yet.';
+        els.historyList.appendChild(empty);
+        return;
+      }
+      state.history.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'history-item';
+
+        const main = document.createElement('div');
+        main.className = 'history-main';
+        main.innerHTML = `<div class="history-pair">${item.asset}</div><div class="history-meta">${item.time} • ${timeframeLabel(item.timeframe)} • ${item.confidence}% confidence</div>`;
+
+        const dir = document.createElement('div');
+        dir.innerHTML = `<span class="pill ${item.direction === 'BUY' ? 'buy' : 'sell'}">${item.direction}</span>`;
+
+        const res = document.createElement('div');
+        const resultClass = item.result ? item.result.toLowerCase() : 'pending';
+        res.innerHTML = `<span class="pill ${resultClass}">${item.result || 'PENDING'}</span>`;
+
+        const actions = document.createElement('div');
+        actions.className = 'result-actions';
+        actions.innerHTML = `
+          <button class="tiny-btn tiny-win" data-action="WIN">WIN</button>
+          <button class="tiny-btn tiny-loss" data-action="LOSS">LOSS</button>
+          <button class="tiny-btn tiny-draw" data-action="DRAW">DRAW</button>
+          <button class="tiny-btn tiny-reset" data-action="PENDING">RESET</button>
+        `;
+
+        actions.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => setHistoryResult(item.id, btn.dataset.action));
+        });
+
+        row.appendChild(main);
+        row.appendChild(dir);
+        row.appendChild(res);
+        row.appendChild(actions);
+        els.historyList.appendChild(row);
+      });
+    }
+
+    function createSignal(){
+      const asset = els.assetSelect.value;
+      const timeframe = els.timeframeSelect.value;
+      const mode = els.riskSelect.value;
+      const direction = randomDirection();
+      const confidence = confidenceByMode(mode);
+
+      const signal = {
+        id: Date.now() + Math.random().toString(16).slice(2),
+        asset,
+        timeframe,
+        direction,
+        confidence,
+        riskLabel: mode.charAt(0).toUpperCase() + mode.slice(1),
+        entryWindow: getEntryWindow(timeframe),
+        summary: generateSummary(direction, timeframe, mode, confidence),
+        reasons: generateReasons(direction, timeframe, mode),
+        result: 'PENDING',
+        time: formatTime()
+      };
+
+      state.history.unshift(signal);
+      if(state.history.length > 20) state.history = state.history.slice(0, 20);
+
+      renderSignalCard(signal);
+      renderHistory();
+      updateStats();
+      saveState();
+    }
+
+    function toggleStreamMode(){
+      state.streamMode = !state.streamMode;
+      document.body.classList.toggle('stream-mode', state.streamMode);
+      els.streamModeBtn.textContent = state.streamMode ? 'Exit Stream Mode' : 'Stream Mode';
+      saveState();
+    }
+
+    function init(){
+      loadState();
+      document.body.classList.toggle('stream-mode', state.streamMode);
+      els.streamModeBtn.textContent = state.streamMode ? 'Exit Stream Mode' : 'Stream Mode';
+
+      if(state.history.length) renderSignalCard(state.history[0]);
+      renderHistory();
+      updateVotes();
+      updateStats();
+
+      els.generateSignalBtn.addEventListener('click', createSignal);
+      els.voteBuyBtn.addEventListener('click', () => { state.votes.buy += 1; updateVotes(); });
+      els.voteSellBtn.addEventListener('click', () => { state.votes.sell += 1; updateVotes(); });
+      els.streamModeBtn.addEventListener('click', toggleStreamMode);
+    }
+
+    init();
+  </script>
+</body>
+</html>
